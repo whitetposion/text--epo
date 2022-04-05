@@ -101,7 +101,7 @@ class UserBase(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_user_teams(self, request: str) -> str:
+    def get_user_teams(self, request, pk=None, format=None) -> str:
         """
         :param request:
         {
