@@ -76,25 +76,20 @@ class TeamBase(APIView):
         return Response(serializer.data)
 
     # update team
-    def patch(self, request, pk=None, format=None) -> str:
+    def patch(self, request, pk=None, format=None):
         """
         :param request: A json string with the team details
         {
           "id" : "<team_id>",
-          "team" : {
-            "name" : "<team_name>",
-            "description" : "<team_description>",
-            "admin": "<id of a user>"
-          }
+          "users" : ["user_id 1", "user_id2"]
         }
 
         :return:
 
         Constraint:
-            * Team name must be unique
-            * Name can be max 64 characters
-            * Description can be max 128 characters
+        * Cap the max users that can be added to 50
         """
+
         id = pk
         if 'members' in request.data.keys():
           new_members = request.data.get('members')
@@ -109,6 +104,24 @@ class TeamBase(APIView):
               return Response({"MSG":"Team Updated Successfully"})
           return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
+          """
+        :param request: A json string with the team details
+        {
+          "id" : "<team_id>",
+          "team" : {
+            "name" : "<team_name>",
+            "description" : "<team_description>",
+            "admin": "<id of a user>"
+          }
+        }
+        
+        :return:
+
+        Constraint:
+            * Team name must be unique
+            * Name can be max 64 characters
+            * Description can be max 128 characters
+        """
           usser = team.objects.get(id=id)
           serializer = TeamSerializer(usser, data=request.data, partial=True)
           if serializer.is_valid():
@@ -119,18 +132,7 @@ class TeamBase(APIView):
 
     # add users to team
     def add_users_to_team(self, request: str):
-        """
-        :param request: A json string with the team details
-        {
-          "id" : "<team_id>",
-          "users" : ["user_id 1", "user_id2"]
-        }
-
-        :return:
-
-        Constraint:
-        * Cap the max users that can be added to 50
-        """
+        
         pass
 
     # add users to team

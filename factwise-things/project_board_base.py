@@ -1,5 +1,5 @@
 class ProjectBoardBase:
-    """
+    """ 
     A project board is a unit of delivery for a project. Each board will have a set of tasks assigned to a user.
     """
 
