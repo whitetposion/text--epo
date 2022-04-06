@@ -95,7 +95,7 @@ class TeamBase:
         * Cap the max users that can be added to 50
         """
         pass
-
+ 
     # add users to team
     def remove_users_from_team(self, request: str):
         """
