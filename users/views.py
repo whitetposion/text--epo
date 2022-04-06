@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from users.models import user
 from teams.models import team
 from rest_framework.response import Response
-from users.serializers import UserSerializer, UserPatchSerializer
+from users.serializers import UserSerializer, UserPatchSerializer, UserGETSerializer
 from rest_framework import status
 
 # Create your views here.
@@ -11,14 +11,35 @@ class UserBase(APIView):
     """
     Base interface implementation for API's to manage users.
     """
+    def post(self, request, format=None):
+        
+        Response = self.create_user(request)
+        return Response
+      
+    def get(self, request, pk=None):
+        
+        if 'id' in request.data:
+          response = self.get_user_teams(request.data['id'])
+        elif pk is None:
+          response = self.list_users()
+        else:
+          response = self.describe_user(pk)
+        return response
+
+    def patch(self, request, pk=None, format=None):
+        response = self.update_user(request, pk, format)
+        return response
+
+
 
     # create a user
-    def post(self, request, format=None):
+    def create_user(self, request):
         """
         :param request: A json string with the user details
         {
           "name" : "<user_name>",
           "display_name" : "<display name>"
+          "description" : "<some description>",
         }
         :return: A json string with the response {"id" : "<user_id>"}
 
@@ -28,15 +49,14 @@ class UserBase(APIView):
             * display name can be max 64 characters
         """
         serializer = UserSerializer(data=request.data)
-        print(request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"id":serializer.data.get('id')}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-    # list all users and also describe a user
-    def get(self, request, pk=None, format=None) -> str:
+    # list all users
+    def list_users(self):
         """
         :return: A json list with the response
         [
@@ -63,19 +83,34 @@ class UserBase(APIView):
         }
 
         """
-        id=pk
-        if id is not None:
-            uuser = user.objects.get(id=id)
-            serializer = UserSerializer(uuser)
-            return Response(serializer.data)
-        
         usser = user.objects.all()
-        serializer = UserSerializer(usser, many=True)
+        serializer = UserGETSerializer(usser, many=True)
         return Response(serializer.data)
 
 
+     # describe user
+    def describe_user(self, pk):
+        """
+        :param request: A json string with the user details
+        {
+          "id" : "<user_id>"
+        }
+
+        :return: A json string with the response
+
+        {
+          "name" : "<user_name>",
+          "description" : "<some description>",
+          "creation_time" : "<some date:time format>"
+        }
+
+        """
+        uuser = user.objects.get(id=pk)
+        serializer = UserGETSerializer(uuser)
+        return Response(serializer.data)
+
     # update user
-    def patch(self, request, pk=None, format=None) -> str:
+    def update_user(self, request, pk=None) -> str:
         """
         :param request: A json string with the user details
         {
@@ -93,15 +128,14 @@ class UserBase(APIView):
             * name can be max 64 characters
             * display name can be max 128 characters
         """
-        id = pk
-        usser = user.objects.get(id=id)
+        usser = user.objects.get(id=pk)
         serializer = UserPatchSerializer(usser, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response("Successfully Updated")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_user_teams(self, request, pk=None, format=None) -> str:
+    def get_user_teams(self,pk=None):
         """
         :param request:
         {
@@ -117,5 +151,4 @@ class UserBase(APIView):
           }
         ]
         """
-        pass
-
+        

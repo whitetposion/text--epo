@@ -8,7 +8,7 @@ class team(models.Model):
     description = models.CharField(max_length=128)
     creationtime = models.DateTimeField(auto_now_add=True)
     admin = models.ForeignKey(user, related_name='admin', on_delete=models.CASCADE, to_field="id")
-    members = models.ManyToManyField(user,help_text='Select members for this team')
+    members = models.ManyToManyField(user,max_length=50,help_text='Select members for this team')
 
     def __str__(self) -> str:
         return self.teamname

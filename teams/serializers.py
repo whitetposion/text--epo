@@ -6,11 +6,6 @@ class TeamSerializer(serializers.ModelSerializer):
         model = team
         fields = ['id', 'teamname', 'description', 'creationtime', 'admin', 'members']
 
-class TeamUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = team
-        fields = ['id', 'members']
-
 class TeamGETSerializer(serializers.ModelSerializer):
     class Meta:
         model = team
